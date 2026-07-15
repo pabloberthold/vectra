@@ -52,9 +52,16 @@
             <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
           <p class="dz-title">Arrastrá tu imagen acá</p>
-          <p class="dz-sub">o hacé clic para elegir un archivo · JPG, PNG, GIF</p>
+          <p class="dz-sub">Hacé clic para elegir un archivo · JPG, PNG, GIF</p>
+          <p class="dz-sub dz-sub-paste">o pegá una imagen copiada con <kbd>Ctrl</kbd>+<kbd>V</kbd> (<kbd>Cmd</kbd>+<kbd>V</kbd> en Mac)</p>
         </div>
         <input type="file" id="file-input" accept="image/jpeg,image/png,image/gif" hidden>
+      </div>
+
+      <div class="dz-alt-actions">
+        <button type="button" id="paste-btn" class="ghost-btn ghost-btn-small">
+          Pegar desde el portapapeles
+        </button>
       </div>
 
       <p id="error-msg" class="error-msg" hidden></p>

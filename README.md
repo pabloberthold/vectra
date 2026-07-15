@@ -31,6 +31,12 @@ En `script.js`, la función `runConversion` arma las opciones de ImageTracer:
 - `numberofcolors`: paleta de color (modo Color) o fijo en 2 (modo Blanco y negro)
 - El **umbral de brillo** (modo Blanco y negro) se aplica manualmente sobre un `<canvas>` antes de pasarle los píxeles a ImageTracer, replicando el comportamiento clásico de potrace
 
+## Formas de subir una imagen
+
+- Arrastrar y soltar sobre la zona de carga
+- Clic para elegir un archivo del dispositivo
+- **Pegar desde el portapapeles**: `Ctrl+V` / `Cmd+V` en cualquier parte de la página (funciona sin permisos especiales), o el botón "Pegar desde el portapapeles", que usa la Clipboard API asíncrona (puede pedir permiso la primera vez, y no está disponible en todos los navegadores — en ese caso se sugiere usar el atajo de teclado)
+
 ## Publicar en GitHub Pages
 
 1. Creá un repositorio nuevo y subí estos tres archivos (`index.html`, `style.css`, `script.js`) a la raíz (o a `/docs`).

@@ -5,6 +5,7 @@
   const dropzone       = document.getElementById('dropzone');
   const fileInput      = document.getElementById('file-input');
   const errorMsg       = document.getElementById('error-msg');
+  const pasteBtn       = document.getElementById('paste-btn');
 
   const uploadPanel     = document.getElementById('upload-panel');
   const convertPanel    = document.getElementById('convert-panel');
@@ -152,6 +153,94 @@
     const file = e.target.files && e.target.files[0];
     handleIncomingFile(file);
   });
+
+  // ---------- Paste from clipboard ----------
+
+  function extensionForMime(mime) {
+    if (mime === 'image/png') return 'png';
+    if (mime === 'image/gif') return 'gif';
+    return 'jpg';
+  }
+
+  function blobToNamedFile(blob) {
+    const type = ACCEPTED_TYPES.includes(blob.type) ? blob.type : 'image/png';
+    const name = `pegado-${Date.now()}.${extensionForMime(type)}`;
+    try {
+      return new File([blob], name, { type });
+    } catch (_) {
+      // Safari fallback: File constructor with Blob parts works, but guard just in case.
+      blob.name = name;
+      return blob;
+    }
+  }
+
+  function flashDropzone() {
+    dropzone.classList.add('paste-flash');
+    setTimeout(() => dropzone.classList.remove('paste-flash'), 600);
+  }
+
+  // Works as soon as the page has focus, no permission prompt: Ctrl+V / Cmd+V anywhere.
+  document.addEventListener('paste', (e) => {
+    const items = e.clipboardData && e.clipboardData.items;
+    if (!items) return;
+
+    let imageItem = null;
+    for (const item of items) {
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        imageItem = item;
+        break;
+      }
+    }
+    if (!imageItem) return;
+
+    e.preventDefault();
+    const blob = imageItem.getAsFile();
+    if (!blob) return;
+
+    flashDropzone();
+    handleIncomingFile(blobToNamedFile(blob));
+  });
+
+  // Explicit button for browsers/devices where the keyboard shortcut isn't practical
+  // (e.g. touch devices). Uses the async Clipboard API, which requires a user gesture
+  // and, in some browsers, a one-time permission grant.
+  if (pasteBtn) {
+    pasteBtn.addEventListener('click', async () => {
+      clearError();
+
+      if (!navigator.clipboard || !navigator.clipboard.read) {
+        showError('Tu navegador no permite leer el portapapeles con este botón. Probá Ctrl+V / Cmd+V sobre la página.');
+        return;
+      }
+
+      try {
+        const items = await navigator.clipboard.read();
+        let found = null;
+
+        outer:
+        for (const item of items) {
+          for (const type of item.types) {
+            if (type.startsWith('image/')) {
+              found = { item, type };
+              break outer;
+            }
+          }
+        }
+
+        if (!found) {
+          showError('No se encontró ninguna imagen en el portapapeles. Copiá una imagen primero.');
+          return;
+        }
+
+        const blob = await found.item.getType(found.type);
+        flashDropzone();
+        handleIncomingFile(blobToNamedFile(blob));
+      } catch (err) {
+        console.error(err);
+        showError('No se pudo leer el portapapeles. Revisá los permisos del navegador o usá Ctrl+V / Cmd+V.');
+      }
+    });
+  }
 
   // ---------- Settings UI ----------
   modeToggle.addEventListener('click', (e) => {
